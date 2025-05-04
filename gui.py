@@ -2,17 +2,22 @@ def show_comparison(fl_accs, fl_times, cent_accs, cent_times):
     """Plot Federated vs. Centralized accuracy and time using Tkinter GUI."""
     import tkinter as tk
     from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+    import matplotlib
+    matplotlib.use('Agg')  # Use Agg backend for thread safety
     import matplotlib.pyplot as plt
 
-    # Create the Tkinter window
+    # Create the Tkinter window in the main thread
     root = tk.Tk()
     root.title("Federated vs. Centralized Training Comparison")
 
-    # Prepare data
-    rounds = list(range(1, len(fl_accs) + 1))
+    # Verify data is not empty
+    if not fl_accs or not cent_accs:
+        tk.Label(root, text="No data to display").pack()
+        return
 
     # Create figure with improved layout
     fig, axs = plt.subplots(2, 1, figsize=(8, 7), constrained_layout=True)
+    rounds = list(range(1, len(fl_accs) + 1))
 
     # --- Accuracy Plot ---
     axs[0].plot(rounds, fl_accs, marker='o', label='Federated', color='tab:blue')
