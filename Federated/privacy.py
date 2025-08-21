@@ -21,5 +21,7 @@ def apply_privacy(value, scheme='none', epsilon=1.0, sensitivity=1.0, delta=None
         return laplace_mechanism(value, epsilon, sensitivity)
     elif scheme == 'gaussian' and delta is not None:
         return gaussian_mechanism(value, epsilon, sensitivity, delta)
+    elif scheme == 'none':
+        return value
     else:
-        return value  # No privacy applied
+        print("Seletect between laplace | gaussian | none")

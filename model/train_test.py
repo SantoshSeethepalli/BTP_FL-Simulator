@@ -15,7 +15,8 @@ def train(model, dataset, client_id=None):
     learningRate = 0.01
     momentum = 0.5
     optimizer = optim.SGD(model.parameters(), lr=learningRate, momentum=momentum)
-    criterion = nn.NLLLoss()
+    criterion = nn.NLLLoss()  # works for any n_classes
+
     with print_lock:
         print(" ")
         if client_id is not None:

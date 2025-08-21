@@ -5,9 +5,9 @@ import time
 from copy import deepcopy
 from threading import Thread, Lock
 import torch
-from dataset import mnist_dataset
+from dataset import dataset_loader
 from model.layers import CNN
-from model.train import test, train
+from model.train_test import test, train
 from Federated.config import FederatedConfig
 from Federated.privacy import apply_privacy
 from Federated import plotting
@@ -15,12 +15,15 @@ from Federated import plotting
 clientModels = []
 clientModelsLock = Lock()
 
+# Set number of classes according to MedNIST
+n_classes = 9  # e.g., PathMNIST has 9 classes
+
 def clientTraining(serverModel, clientDatasets, client, round, epsilon, sensitivity, privacy_scheme, delta=None):
     global clientModels
     start_time = time.time()
     
     clientTrainingSet = clientDatasets[client][round]
-    trainLoader = mnist_dataset.get_dataloader(clientTrainingSet)
+    trainLoader = dataset_loader.get_dataloader(clientTrainingSet)
     clientModel = deepcopy(serverModel)
     trainedClientModel = train(clientModel, trainLoader, client_id=client)  # Pass client_id here
 
@@ -61,13 +64,16 @@ def federated():
     round_accuracies = []
     avg_round_times = []
 
-    trainSet = mnist_dataset.load_dataset(isTrainDataset=True)
-    clientDatasets = mnist_dataset.split_client_datasets(
+    # Load MedNIST dataset
+    trainSet = dataset_loader.load_dataset(isTrainDataset=True)
+    clientDatasets = dataset_loader.split_client_datasets(
         trainSet, config.clientNum, config.trainingRounds
     )
 
-    testSet = mnist_dataset.load_dataset(isTrainDataset=False)
-    testLoader = mnist_dataset.get_dataloader(testSet)
+    testSet = dataset_loader.load_dataset(isTrainDataset=False)
+    testLoader = dataset_loader.get_dataloader(testSet)
+    
+    # Initialize CNN (reads n_classes from updated model/layers.py)
     serverModel = CNN()
 
     for round in range(config.trainingRounds):
